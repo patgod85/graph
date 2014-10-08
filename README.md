@@ -9,7 +9,9 @@ JQuery plugin for creating of graph using specific input array
 $(selector).graph(options, data);
 ```
 
-[Example](example/index.html)
+[Code example](example/index.html)
+
+[Live example](patgod.ru/graph/example.index.html)
 
 # Available options:
 
