@@ -11,7 +11,7 @@ $(selector).graph(options, data);
 
 [Code example](example/index.html)
 
-[Live example](patgod.ru/graph/example.index.html)
+[Live example](http://patgod.ru/graph/example.index.html)
 
 # Available options:
 
