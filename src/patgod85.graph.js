@@ -46,6 +46,7 @@
                 stepsX: 8,
                 stepsY: 5,
                 yK: 1.5,
+                debug: false,
                 types: [{color: '#39A8EC', description: 'ваша ставка'}, {color: '#0457AB', description: 'другая компания'}]
             };
 
@@ -142,7 +143,6 @@
                 function addListeners() {
                     canvas.addEventListener('mousemove', function (e) {
                         var mousePos = getMousePos(canvas, e);
-                        var statusBar = document.getElementById('graphStatusBar');
 
                         var hoveredPoint = null;
                         var hoverStateCurrent = [];
@@ -169,7 +169,10 @@
 
                         hoverStateGlobal = hoverStateCurrent;
 
-                        statusBar.innerHTML = message;
+                        if(options['debug']){
+                            var statusBar = document.getElementById('graphStatusBar');
+                            statusBar.innerHTML = message;
+                        }
                     }, false);
                 }
 
