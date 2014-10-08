@@ -37,7 +37,7 @@
                 width: 1280,
                 height: 1024,
                 marginX: 50,
-                marginY: 20,
+                marginY: 50,
                 backgroundColor: 'white',
                 axesColor: '#DEDEDE',
                 axesDescriptionColor: '#979797',
@@ -45,6 +45,7 @@
                 pointsColor: '#0457AB',
                 stepsX: 8,
                 stepsY: 5,
+                yK: 1.5,
                 types: [{color: '#39A8EC', description: 'ваша ставка'}, {color: '#0457AB', description: 'другая компания'}]
             };
 
@@ -69,7 +70,7 @@
 
             mapCoords(
                 coords,
-                function(type, x, y){
+                function(type, descr, x, y){
                     maxX = Math.max(x, maxX);
                     maxY = Math.max(y, maxY);
                     minX = Math.min(x, minX);
@@ -77,11 +78,28 @@
                 }
             );
 
+            function getNearestStraightDate(direction, value){
+                var date = new Date();
+                date.setTime(value);
+                while(date.getMinutes() != 0 || (date.getHours() - 1) % (options['stepsY'] - 1) != 0){
+                    if(direction){
+                        value += 60000;
+                    }else{
+                        value -= 60000;
+                    }
+                    date.setTime(value);
+                }
+                return value;
+            }
+
+            minX = getNearestStraightDate(false, minX);
+            maxX = minX + getNearestStraightDate(true, maxX - minX);
+
             var coefficientX = (options['width'] - options['marginX'] * 2) / (maxX - minX);
             var stepTime = (maxX - minX) / options['stepsX'];
             return {
                 coefficientX: coefficientX,
-                coefficientY: (options['height']/2 - options['marginY'] * 2) / (maxY - minY),
+                coefficientY: (options['height']/options['yK'] - options['marginY'] * 2) / (maxY - minY),
                 x0: parseInt(options['marginX'], 10),
                 y0: options['height'] - options['marginY'],
                 minX: minX,
@@ -99,9 +117,9 @@
             var points = [];
             mapCoords(
                 coords,
-                function(type, x, y){
+                function(type, descr, x, y){
                     points.push(
-                        new Point(type, x, y, options, params)
+                        new Point(type, descr, x, y, options, params)
                     );
                 }
             );
@@ -221,8 +239,16 @@
                             //context.arc(point.x, point.y, radius, 0, 2 * Math.PI, false);
 
                             rhomb(context, point, radius);
-
                             context.closePath();
+
+                            if(point.descr != ''){
+                                context.beginPath();
+                                context.font = 'bold 10pt Tahoma';
+                                context.fillStyle = options.types[point.type].color;
+                                context.fillText(point.descr, point.x - 10, point.y + 15);
+                                context.closePath();
+                            }
+
                         }
                     );
 
@@ -261,7 +287,7 @@
                     for(var i = 0; i < options.types.length; i++){
                         context.beginPath();
 
-                        rhomb(context, new Point(i, i * 120 + 100, 10, options, params, true), 5);
+                        rhomb(context, new Point(i, '', i * 120 + 100, 10, options, params, true), 5);
                         context.closePath();
 
                         context.beginPath();
@@ -299,7 +325,8 @@
                     //);
                     //context.closePath();
 
-                    var i;
+                    var i, currentDate = 0;
+
 
                     for(i = 0; i < options['stepsX']; i++){
                         var x = params['x0'] + i * params['stepX'];
@@ -313,6 +340,11 @@
                         var date = new Date();
                         date.setTime(params['minX'] + i* params['stepTime']);
                         context.fillText(date.toLocaleFormat("%H:%M"), x, params['y0'] + 15);
+
+                        if(i == 0 || currentDate != date.getDate()){
+                            context.fillText(date.toLocaleFormat("%d %B"), x, params['y0'] + 25);
+                        }
+                        currentDate = date.getDate();
                     }
 
                     for(i = 0; i < options['stepsY']; i++){
@@ -343,10 +375,15 @@
                     context.fillStyle = options['linesColor'];
                     context.strokeStyle = options['linesColor'];
 
-                    var lastX = 0;
+                    var firstX, lastX = 0;
+
 
                     mapPoints(
                         function(point){
+                            if(typeof firstX == 'undefined'){
+                                firstX = point.x;
+                            }
+
                             context.lineTo(point.x, point.y);
                             lastX = point.x;
                         }
@@ -356,7 +393,7 @@
                     context.stroke();
 
                     context.lineTo(lastX, params['y0']);
-                    context.lineTo(params['x0'], params['y0']);
+                    context.lineTo(typeof firstX != 'undefined' ? firstX : 0, params['y0']);
                     context.fill();
 
                     context.closePath();
@@ -396,9 +433,9 @@
         }
         function mapCoords(coords, callback){
             for(var i = 0; i < coords.length; i++){
-                var timestamp = Date.parse(coords[i][1]);
+                var timestamp = Date.parse(coords[i][2]);
 
-                callback(coords[i][0], timestamp, coords[i][2]);
+                callback(coords[i][0], coords[i][1], timestamp, coords[i][3]);
             }
         }
 
@@ -417,7 +454,7 @@
         }
     }
 
-    function Point(type, origX, origY, options, params, force){
+    function Point(type, descr, origX, origY, options, params, force){
         var x;
         var y;
 
@@ -426,7 +463,7 @@
             y = origY;
         }else{
             x = params['coefficientX'] * (origX - params['minX']) + options['marginX'];
-            y = options['height']/2 - params['coefficientY'] * (origY - params['minY']) - options['marginY'];
+            y = options['height']/options['yK'] - params['coefficientY'] * (origY - params['minY']) - options['marginY'];
         }
         return {
             origX: origX,
@@ -434,7 +471,8 @@
             x: x,
             y: y,
             hovered: false,
-            type: type
+            type: type,
+            descr: descr
         }
     }
 })( jQuery );

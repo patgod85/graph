@@ -7,9 +7,6 @@
 
     <title>JQ plugin for graph building</title>
 
-    <script type="text/javascript" src="../bower_components/jquery/dist/jquery.min.js" ></script>
-    <script type="text/javascript" src="../src/patgod85.graph.js"></script>
-
 </head>
 <body>
 
@@ -21,19 +18,22 @@
 
     </div>
 
+    <script type="text/javascript" src="../bower_components/jquery/dist/jquery.min.js" ></script>
+    <script type="text/javascript" src="../src/patgod85.graph.js"></script>
     <script type="text/javascript">
         $('#graph-holder').graph(
             {
                 width: 640,
-                height: 240
+                height: 320
             },
             [
-                [0, '10 April 2014 00:00', 22000],
-                [0, '10 April 2014 07:00', 21000],
-                [1, '10 April 2014 12:00', 19800],
-                [0, '10 April 2014 12:15', 19700],
-                [0, '10 April 2014 17:30', 19500],
-                [1, '11 April 2014 00:00', 19000]
+                [0, '', '9 April 2014 21:14', 22000],
+                [1, '1', '10 April 2014 07:00', 21000],
+                [1, '2', '10 April 2014 12:00', 19800],
+                [1, '1', '10 April 2014 12:15', 19700],
+                [0, '', '10 April 2014 17:30', 19500],
+                [1, '2', '11 April 2014 00:26', 19000],
+                [1, '1', '11 April 2014 03:54', 18000]
             ]
         );
     </script>
