@@ -1,0 +1,44 @@
+<!doctype html>
+
+<html>
+
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+
+    <title>JQ plugin for graph building</title>
+
+    <script type="text/javascript" src="../vendor/jquery-1.11.1.min.js" ></script>
+    <script type="text/javascript" src="../src/patgod85.graph.js"></script>
+
+</head>
+<body>
+
+    <div>
+        Move the ball through the game using the mouse cursor. Try to collect as many coins as you can before the time is over, and make sure the ball doesn't drop through any holes! Warning: directions are reversed!
+    </div>
+
+    <div id="graph-holder">
+
+    </div>
+
+    <script type="text/javascript">
+        $('#graph-holder').graph(
+            {
+                width: 640,
+                height: 240
+            },
+            [
+                [0, '10 April 2014 00:00', 22000],
+                [0, '10 April 2014 07:00', 21000],
+                [1, '10 April 2014 12:00', 19800],
+                [0, '10 April 2014 12:15', 19700],
+                [0, '10 April 2014 17:30', 19500],
+                [1, '11 April 2014 00:00', 19000]
+            ]
+        );
+    </script>
+
+
+
+</body>
+</html>
