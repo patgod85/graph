@@ -106,7 +106,6 @@
                             }
 
                             context.setLineDash([0]);
-                            context.strokeStyle = options['pointsColor'];
                             context.lineWidth = 2;
 
                             rhomb(context, point, radius);
@@ -286,9 +285,9 @@
 
         function tooltip(context, point){
             context.beginPath();
-            context.strokeStyle = options['pointsColor'];
+            context.strokeStyle = options.types[point.type].color;
             context.lineWidth = 1;
-            context.setLineDash([5]);
+            context.setLineDash([3]);
             context.moveTo(params['x0'], point.y);
             context.lineTo(point.x, point.y);
             context.lineTo(point.x, params['y0']);
@@ -332,7 +331,6 @@
                 axesColor: '#DEDEDE',
                 axesDescriptionColor: '#979797',
                 linesColor: '#D9F1FD',
-                pointsColor: '#0457AB',
                 stepsX: 8,
                 stepsY: 5,
                 yK: 1.5,
