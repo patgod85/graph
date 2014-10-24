@@ -119,7 +119,7 @@
 
                             if(point.descr != ''){
                                 context.beginPath();
-                                context.font = 'bold 10pt Tahoma';
+                                context.font = 'bold 10pt ' + options['fontFamily'];
                                 context.fillStyle = options.types[point.type].color;
                                 context.fillText(point.descr, point.x - 10, point.y + 15);
                                 context.closePath();
@@ -170,7 +170,7 @@
 
                     context.strokeStyle = options['axesColor'];
                     context.lineWidth = 1;
-                    context.font = '8pt Arial';
+                    context.font = '8pt ' + options['fontFamily'];
                     context.fillStyle = options['axesDescriptionColor'];
 
                     context.beginPath();
@@ -411,7 +411,7 @@
 
             context.beginPath();
             context.fillStyle = 'white';
-            context.font = 'bold 10pt Tahoma';
+            context.font = 'bold 10pt ' + options['fontFamily'];
             context.fillText(point.origY.toString(), point.x - 20, point.y - 25);
             context.stroke();
 
@@ -428,6 +428,7 @@
                 axesColor: '#DEDEDE',
                 axesDescriptionColor: '#979797',
                 linesColor: '#D9F1FD',
+                fontFamily: 'Tahoma',
                 stepsX: 8,
                 stepsY: 5,
                 yK: 1.5,

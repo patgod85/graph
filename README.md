@@ -46,6 +46,7 @@ Default options:
     axesColor: '#DEDEDE',
     axesDescriptionColor: '#979797',
     linesColor: '#D9F1FD',
+    fontFamily: 'Tahoma',
     stepsX: 8,
     stepsY: 5,
     yK: 1.5,
