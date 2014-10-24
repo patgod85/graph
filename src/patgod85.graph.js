@@ -173,38 +173,6 @@
                     context.font = '8pt Arial';
                     context.fillStyle = options['axesDescriptionColor'];
 
-                    var i, currentDate = 0;
-
-                    for(i = 0; i < options['stepsX']; i++){
-                        var x = params['x0'] + i * params['stepX'];
-
-                        context.beginPath();
-                        context.moveTo(x, params['y0']);
-                        context.lineTo(x, params['y0'] - options['height'] + options['marginY'] * 2);
-                        context.stroke();
-                        context.closePath();
-
-                        var date = new Date();
-                        date.setTime(params['minX'] + i* params['stepTime']);
-                        context.fillText(date.format("%H:%M"), x, params['y0'] + 15);
-
-                        if(i == 0 || currentDate != date.getDate()){
-                            context.fillText(date.format("%d %B"), x, params['y0'] + 25);
-                        }
-                        currentDate = date.getDate();
-                    }
-
-                    for(i = 0; i < options['stepsY']; i++){
-                        var y = params['y0'] - i * params['stepY'];
-
-                        context.beginPath();
-                        context.moveTo(params['x0'], y);
-                        context.lineTo(params['x0'] + options['width'] - options['marginX'] * 2, y);
-                        context.stroke();
-                        context.closePath();
-                    }
-
-
                     context.beginPath();
 
                     context.lineWidth = 1;
@@ -214,6 +182,84 @@
                     context.stroke();
 
                     context.closePath();
+
+                    drawNotchesOnX();
+                    drawNotchesOnY();
+
+                    function drawNotchesOnX(){
+                        var i, currentDate = 0;
+
+                        drawFirstNotch();
+                        drawLastNotch();
+
+                        for(i = 0; i < options['stepsX']; i++){
+                            var x = params['x0'] + i * params['stepX'];
+
+                            x = timeToX(
+                                getNearestPrettyDate(
+                                    true,
+                                    xToTime(x)
+                                )
+                            );
+
+                            context.beginPath();
+                            context.moveTo(x, params['y0']);
+                            context.lineTo(x, params['y0'] - options['height'] + options['marginY'] * 2);
+                            context.stroke();
+                            context.closePath();
+
+                            var date = new Date();
+                            date.setTime(xToTime(x));
+                            context.fillText(date.format("%H:%M"), x, params['y0'] + 15);
+
+                            if(i == 0 || currentDate != date.getDate()){
+                                context.fillText(date.format("%d %B %Y"), x, params['y0'] + 25);
+                            }
+                            currentDate = date.getDate();
+                        }
+
+                        function getNearestPrettyDate(direction, value){
+                            var date = new Date();
+                            date.setTime(value);
+                            while(date.getMinutes() != 0 || (date.getHours() - 1) % (options['stepsX']) != 0){
+                                if(direction){
+                                    value += 60000;
+                                }else{
+                                    value -= 60000;
+                                }
+                                date.setTime(value);
+                            }
+                            return value;
+                        }
+
+                        function drawFirstNotch(){
+                            var time = params['minX'];
+
+                            var date = new Date();
+                            date.setTime(time);
+                            context.fillText(date.format("%H:%M"), timeToX(time) - 30, params['y0'] + 5);
+                        }
+
+                        function drawLastNotch(){
+                            var time = params['maxX'];
+
+                            var date = new Date();
+                            date.setTime(time);
+                            context.fillText(date.format("%H:%M"), timeToX(time) + 5, params['y0'] + 5);
+                        }
+                    }
+
+                    function drawNotchesOnY(){
+                        for(var i = 0; i < options['stepsY']; i++){
+                            var y = params['y0'] - i * params['stepY'];
+
+                            context.beginPath();
+                            context.moveTo(params['x0'], y);
+                            context.lineTo(params['x0'] + options['width'] - options['marginX'] * 2, y);
+                            context.stroke();
+                            context.closePath();
+                        }
+                    }
                 }
 
                 function drawCurve(){
@@ -413,22 +459,10 @@
                 }
             );
 
-            function getNearestPrettyDate(direction, value){
-                var date = new Date();
-                date.setTime(value);
-                while(date.getMinutes() != 0 || (date.getHours() - 1) % (options['stepsY'] - 1) != 0){
-                    if(direction){
-                        value += 60000;
-                    }else{
-                        value -= 60000;
-                    }
-                    date.setTime(value);
-                }
-                return value;
-            }
 
-            minX = getNearestPrettyDate(false, minX);
-            maxX = minX + getNearestPrettyDate(true, maxX - minX);
+
+//            minX = getNearestPrettyDate(false, minX);
+//            maxX = minX + getNearestPrettyDate(true, maxX - minX);
 
             var coefficientX = (options['width'] - options['marginX'] * 2) / (maxX - minX);
             var stepTime = (maxX - minX) / options['stepsX'];
@@ -439,6 +473,7 @@
                 x0: parseInt(options['marginX'], 10),
                 y0: options['height'] - options['marginY'],
                 minX: minX,
+                maxX: maxX,
                 minY: minY,
                 stepTime: stepTime,
                 stepX: stepTime * coefficientX,
@@ -459,6 +494,13 @@
             return points;
         }
 
+        function xToTime(x){
+            return (x - params['x0']) / params['coefficientX'] + params['minX'];
+        }
+
+        function timeToX(time){
+            return (time - params['minX'] + params['x0'] / params['coefficientX']) * params['coefficientX'];
+        }
     }
 
     function Point(type, descr, origX, origY, options, params, force){
