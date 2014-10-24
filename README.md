@@ -56,12 +56,21 @@ Default options:
 
 # Data format
 
-Array of array with elements:
+Array of arrays with elements:
 
 * type - ID of type from options.types
 * description - will be shown under point on the graph
 * datetime  - date and time in format that supported by Date.parse. Axis X
 * value - value. Axis Y
+
+or array of objects with properties:
+
+* Type
+* Description
+* X
+* Y
+
+Two formats can be mixed
 
 Example:
 
@@ -70,7 +79,7 @@ Example:
     [0, '', '9 April 2014 21:14', 22000],
     [1, '1', '10 April 2014 07:00', 21000],
     [1, '2', '10 April 2014 12:00', 19800],
-    [1, '1', '10 April 2014 12:40', 19700],
+    {Type: 1, Description: '1', X: '10 April 2014 12:40', Y: 19700},
     [0, '', '10 April 2014 17:30', 19500],
     [1, '2', '11 April 2014 00:26', 19000],
     [1, '1', '11 April 2014 03:54', 18000]

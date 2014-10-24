@@ -268,11 +268,54 @@
                 }
             }
         }
-        function mapCoords(callback){
-            for(var i = 0; i < coords.length; i++){
-                var timestamp = Date.parse(coords[i][2]);
+        function mapInputArray(callback){
+            //Type, Description, X, Y
+            var params, timestamp;
 
-                callback(coords[i][0], coords[i][1], timestamp, coords[i][3]);
+            for(var i = 0; i < coords.length; i++){
+                if(isArray(coords[i])){
+                    params = arrayToObject(coords[i]);
+                }else{
+                    params = coords[i];
+
+                    if(!params.hasOwnProperty('Type')){
+                        throw "Wrong input format. Object should have the Type property";
+                    }
+
+                    if(!params.hasOwnProperty('Description')){
+                        params.Description = '';
+                    }
+
+                    if(isNaN(parseFloat(params.Y))){
+                        throw "Wrong input format. Y value can not be parsed as a float";
+                    }
+                }
+
+                timestamp = Date.parse(params.X);
+
+                if(isNaN(timestamp)){
+                    throw "Wrong input format. Time can not be parsed";
+                }
+
+                callback(params.Type, params.Description, timestamp, params.Y);
+            }
+
+            function arrayToObject(array){
+
+                if(array.length != 4){
+                    throw "Wrong input format. Array should have 4 elements";
+                }
+
+                return {
+                    Type: array[0],
+                    Description: array[1],
+                    X: array[2],
+                    Y: array[3]
+                }
+            }
+
+            function isArray(a){
+                return Object.prototype.toString.call( a ) === '[object Array]';
             }
         }
 
@@ -361,7 +404,7 @@
                 minX = Number.MAX_VALUE,
                 minY = Number.MAX_VALUE;
 
-            mapCoords(
+            mapInputArray(
                 function(type, descr, x, y){
                     maxX = Math.max(x, maxX);
                     maxY = Math.max(y, maxY);
@@ -406,7 +449,7 @@
         function getPoints(){
 
             var points = [];
-            mapCoords(
+            mapInputArray(
                 function(type, descr, x, y){
                     points.push(
                         new Point(type, descr, x, y, options, params)
