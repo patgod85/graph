@@ -2,9 +2,16 @@
 
 (function( $ ){
 
+    var holderClassName = 'p85-graph-holder',
+        fgId = 'p85GraphCanvasFg',
+        bgId = 'p85GraphCanvasBg',
+        statusBarId = 'p85GraphStatusBar';
+
     $.fn.graph = function(options, coords) {
 
         addLocalFormat();
+
+        this.addClass(holderClassName);
 
         (new Style).appendTo(this);
 
@@ -37,7 +44,7 @@
         function PointsLayer(options){
 
             this.getCanvas = function() {
-                var canvas = createCanvas('myCanvasFg');
+                var canvas = createCanvas(fgId);
                 var context = canvas.getContext('2d');
                 var hoverStateGlobal = [];
 
@@ -75,7 +82,7 @@
                         hoverStateGlobal = hoverStateCurrent;
 
                         if(options['debug']){
-                            var statusBar = document.getElementById('graphStatusBar');
+                            var statusBar = document.getElementById(statusBarId);
                             statusBar.innerHTML = message;
                         }
                     }, false);
@@ -130,7 +137,7 @@
         function BackgroundLayer(options, params){
 
             this.getCanvas = function(){
-                var canvas = createCanvas('myCanvasBg');
+                var canvas = createCanvas(bgId);
                 var context = canvas.getContext('2d');
 
                 drawBackground();
@@ -233,6 +240,7 @@
                     context.stroke();
 
                     context.lineTo(lastX, params['y0']);
+                    //noinspection JSUnusedAssignment
                     context.lineTo(typeof firstX != 'undefined' ? firstX : 0, params['y0']);
                     context.fill();
 
@@ -462,7 +470,7 @@
         this.appendTo = function(container){
             var style = document.createElement('style');
             style.setAttribute('type', 'text/css');
-            style.innerHTML = '#graph-holder {position: relative; border: 1px solid grey;} #myCanvasFg {position: absolute; top:0; left:0;}';
+            style.innerHTML = '.p85-graph-holder {position: relative; border: 1px solid grey;} #' + fgId + ' {position: absolute; top:0; left:0;}';
             container.append(style);
         }
     }
@@ -470,7 +478,7 @@
     function StatusBar(){
         this.appendTo = function(container) {
             var statusBar = document.createElement('p');
-            statusBar.setAttribute('id', 'graphStatusBar');
+            statusBar.setAttribute('id', statusBarId);
             container.append(statusBar);
         }
     }
