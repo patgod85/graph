@@ -7,7 +7,19 @@
         bgId = 'p85GraphCanvasBg',
         statusBarId = 'p85GraphStatusBar';
 
-    $.fn.graph = function(options, coords) {
+    $.fn.graph = function(options, coords, methodName) {
+
+        if(methodName === 'internals'){
+            return Graph;
+        }
+
+        if(typeof options === 'undefined'){
+            options = {};
+        }
+
+        if(typeof coords === 'undefined'){
+            return this;
+        }
 
         addLocalFormat();
 
@@ -33,6 +45,13 @@
             for(var i = 0; i < layers.length; i++){
                 container.append(layers[i]);
             }
+        };
+
+        this.getInternals = function(){
+            return {
+                timeToX: timeToX,
+                xToTime: xToTime
+            };
         };
 
         options = setDefaultOptions(options);
@@ -190,32 +209,36 @@
                         var i, currentDate = 0;
 
                         drawFirstNotch();
-                        drawLastNotch();
 
-                        for(i = 0; i < options['stepsX']; i++){
-                            var x = params['x0'] + i * params['stepX'];
+                        if(coords.length > 1){
 
-                            x = timeToX(
-                                getNearestPrettyDate(
-                                    true,
-                                    xToTime(x)
-                                )
-                            );
+                            drawLastNotch();
 
-                            context.beginPath();
-                            context.moveTo(x, params['y0']);
-                            context.lineTo(x, params['y0'] - options['height'] + options['marginY'] * 2);
-                            context.stroke();
-                            context.closePath();
+                            for(i = 0; i < options['stepsX']; i++){
+                                var x = params['x0'] + i * params['stepX'];
 
-                            var date = new Date();
-                            date.setTime(xToTime(x));
-                            context.fillText(date.format("%H:%M"), x, params['y0'] + 15);
+                                x = timeToX(
+                                    getNearestPrettyDate(
+                                        true,
+                                        xToTime(x)
+                                    )
+                                );
 
-                            if(i == 0 || currentDate != date.getDate()){
-                                context.fillText(date.format("%d %B %Y"), x, params['y0'] + 25);
+                                context.beginPath();
+                                context.moveTo(x, params['y0']);
+                                context.lineTo(x, params['y0'] - options['height'] + options['marginY'] * 2);
+                                context.stroke();
+                                context.closePath();
+
+                                var date = new Date();
+                                date.setTime(xToTime(x));
+                                context.fillText(date.format("%H:%M"), x, params['y0'] + 15);
+
+                                if(i == 0 || currentDate != date.getDate()){
+                                    context.fillText(date.format("%d %B %Y"), x, params['y0'] + 25);
+                                }
+                                currentDate = date.getDate();
                             }
-                            currentDate = date.getDate();
                         }
 
                         function getNearestPrettyDate(direction, value){
@@ -238,6 +261,10 @@
                             var date = new Date();
                             date.setTime(time);
                             context.fillText(date.format("%H:%M"), timeToX(time) - 30, params['y0'] + 5);
+
+                            if(coords.length == 1){
+                                context.fillText(date.format("%d %B %Y"), params['x0'], params['y0'] + 25);
+                            }
                         }
 
                         function drawLastNotch(){
@@ -460,17 +487,21 @@
                 }
             );
 
+            var coefficientX, coefficientY, stepTime;
 
-
-//            minX = getNearestPrettyDate(false, minX);
-//            maxX = minX + getNearestPrettyDate(true, maxX - minX);
-
-            var coefficientX = (options['width'] - options['marginX'] * 2) / (maxX - minX);
-            var stepTime = (maxX - minX) / options['stepsX'];
+            if(coords.length > 1){
+                coefficientX = (options['width'] - options['marginX'] * 2) / (maxX - minX);
+                coefficientY = (options['height']/options['yK'] - options['marginY'] * 2) / (maxY - minY);
+                stepTime = (maxX - minX) / options['stepsX'];
+            }else{
+                coefficientX = options['width'] - options['marginX'] * 2 / 100;
+                coefficientY = (options['height']/options['yK'] - options['marginY'] * 2) / 100;
+                stepTime = 100 / options['stepsX'];
+            }
 
             return {
                 coefficientX: coefficientX,
-                coefficientY: (options['height']/options['yK'] - options['marginY'] * 2) / (maxY - minY),
+                coefficientY: coefficientY,
                 x0: parseInt(options['marginX'], 10),
                 y0: options['height'] - options['marginY'],
                 minX: minX,
