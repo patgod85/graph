@@ -6,10 +6,10 @@
 /var/logs
 !var/cache/.gitkeep
 !var/logs/.gitkeep
-/build/
 /vendor/
 /bower_components/
 !bin/console
 !bin/symfony_requirements
 /composer.phar
 /.idea/
+/node_modules/

@@ -19,13 +19,16 @@
     </div>
 
     <script type="text/javascript" src="../bower_components/jquery/dist/jquery.min.js" ></script>
-    <script type="text/javascript" src="../src/patgod85.graph.js"></script>
+    <script type="text/javascript" src="../build/patgod85.graph.min.js" class="source"></script>
     <script type="text/javascript">
+
+        var options = {
+            width: 640,
+            height: 320
+        };
+
         $('.graph-holder').graph(
-            {
-                width: 640,
-                height: 320
-            },
+            options,
             [
                 [0, '', '9 April 2014 21:14', 22000],
                 [1, '1', '10 April 2014 07:00', 21000],
