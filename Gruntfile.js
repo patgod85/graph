@@ -6,7 +6,7 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
         uglify: {
             options: {
-                banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+                banner: '/*! <%= pkg.name %> <%= pkg.version %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
             },
             build: {
                 src: 'src/<%= pkg.name %>.js',
@@ -88,7 +88,7 @@ module.exports = function(grunt) {
     // Default task(s).
     grunt.registerTask('default', ['jasmine', 'uglify']);
 
-    grunt.registerTask('deploy', ['default', 'version::patch', 'clean', 'copy', 'ftp-deploy', 'nugetpack', 'nugetpush']);
+    grunt.registerTask('deploy', ['version::patch', 'default', 'clean', 'copy', 'ftp-deploy', 'nugetpack', 'nugetpush']);
 
 
 };
