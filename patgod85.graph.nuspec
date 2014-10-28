@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>patgod85.graph</id>
+        <version>0.0.1</version>
+        <authors>patgod85</authors>
+        <projectUrl>https://github.com/patgod85/graph</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>JQuery plugin for creating of graph using specific input array</description>
+        <tags>jquery plugin graph</tags>
+    </metadata>
+    <files>
+        <file src="build\patgod85.graph.min.js" target="patgod85.graph.min.js" />
+    </files>
+</package>

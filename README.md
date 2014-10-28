@@ -13,6 +13,8 @@ $(selector).graph(options, data);
 
 [Live example](http://patgod.ru/graph/example/index.html)
 
+[NuGet package](https://www.nuget.org/packages/patgod85.graph/)
+
 # Available options:
 
 * width - width of canvas,

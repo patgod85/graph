@@ -31,22 +31,48 @@ module.exports = function(grunt) {
                     host: '77.222.40.121',
                     port: 21
                 },
-                src: 'upload',
+                src: 'var/upload',
                 dest: '/patgod/public_html/graph/',
                 exclusions: []
             }
         },
         clean: [
-            "upload"
+            "var/upload", "var/nuget"
         ],
         copy: {
             main: {
                 files: [
-                    {expand: true, src: ['example/*'], dest: 'upload/', filter: 'isFile'},
-                    {expand: true, src: ['build/*'], dest: 'upload/', filter: 'isFile'}
+                    {expand: true, src: ['example/*'], dest: 'var/upload/', filter: 'isFile'},
+                    {expand: true, src: ['build/*'], dest: 'var/upload/', filter: 'isFile'}
                 ]
             }
+        },
+        nugetpack: {
+            dist: {
+                src: '*.nuspec',
+                dest: 'var/nuget/',
+
+                options: {
+                    version: "<%= pkg.version %>"
+                }
+            }
+        },
+        nugetpush: {
+            dist: {
+                src: 'var/nuget/*.nupkg',
+
+                options: {
+                    apiKey: '786fb4c4-d956-483f-8e4c-aaf2b18e11c9'
+                }
+            }
+        },
+
+        version: {
+            project: {
+                src: ['package.json']
+            }
         }
+
     });
 
 
@@ -56,9 +82,13 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-ftp-deploy');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-nuget');
+    grunt.loadNpmTasks('grunt-version');
 
     // Default task(s).
     grunt.registerTask('default', ['jasmine', 'uglify']);
 
-    grunt.registerTask('deploy', ['clean', 'copy', 'ftp-deploy'])
+    grunt.registerTask('deploy', ['default', 'version::patch', 'clean', 'copy', 'ftp-deploy', 'nugetpack', 'nugetpush']);
+
+
 };

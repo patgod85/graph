@@ -14,4 +14,5 @@
 /.idea/
 /node_modules/
 .ftppass
-/upload/
+/var/upload/
+/var/nuget/
