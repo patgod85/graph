@@ -67,9 +67,13 @@ module.exports = function(grunt) {
             }
         },
 
-        version: {
-            project: {
-                src: ['package.json']
+        bump: {
+            options: {
+                files: ['package.json'],
+                commit: false,
+                push: false,
+                createTag: false,
+                updateConfigs: ['pkg']
             }
         }
 
@@ -83,12 +87,12 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-nuget');
-    grunt.loadNpmTasks('grunt-version');
+    grunt.loadNpmTasks('grunt-bump');
 
     // Default task(s).
     grunt.registerTask('default', ['jasmine', 'uglify']);
 
-    grunt.registerTask('deploy', ['version::patch', 'default', 'clean', 'copy', 'ftp-deploy', 'nugetpack', 'nugetpush']);
+    grunt.registerTask('deploy', ['bump', 'default', 'clean', 'copy', 'ftp-deploy', 'nugetpack', 'nugetpush']);
 
 
 };
