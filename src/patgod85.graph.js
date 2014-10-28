@@ -25,9 +25,11 @@
 
         this.addClass(holderClassName);
 
-        (new Style).appendTo(this);
+        options = setDefaultOptions(options);
 
         (new Graph(options, coords)).appendTo(this);
+
+        (new Style(options)).appendTo(this);
 
         (new StatusBar).appendTo(this);
 
@@ -39,6 +41,7 @@
         this.appendTo = function(container){
             var layers = [
                 (new BackgroundLayer(options, params)).getCanvas(),
+                (new AgendaLayer(options)).getCanvas(),
                 (new PointsLayer(options)).getCanvas()
             ];
 
@@ -54,8 +57,6 @@
             };
         };
 
-        options = setDefaultOptions(options);
-
         var params = getParams();
 
         var points = getPoints();
@@ -63,93 +64,96 @@
         function PointsLayer(options){
 
             this.getCanvas = function() {
-                var canvas = createCanvas(fgClassName);
-                var context = canvas.getContext('2d');
-                var hoverStateGlobal = [];
+                var fgDiv = $('<div class="'+ fgClassName +'"></div>');
 
-                drawPlots();
+                drawPlots(fgDiv);
 
-                addListeners();
-
-                function addListeners() {
-                    canvas.addEventListener('mousemove', function (e) {
-                        var mousePos = getMousePos(canvas, e);
-
-                        var hoveredPoint = null;
-                        var hoverStateCurrent = [];
-
-                        mapPoints(function(point){
-                            if(Math.abs(mousePos.x - point.x) < 8 && Math.abs(mousePos.y - point.y) < 8){
-                                hoveredPoint = point;
-                                point.hovered = true;
-                            }else{
-                                point.hovered = false;
-                            }
-                            hoverStateCurrent.push(point.hovered);
-                        });
-
-                        var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
-
-                        if(hoveredPoint){
-                            message += '. Hovered point!' + hoveredPoint.x + ' : ' + hoveredPoint.y;
-                        }
-
-                        if(hoverStateCurrent.toString() != hoverStateGlobal.toString()){
-                            drawPlots();
-                        }
-
-                        hoverStateGlobal = hoverStateCurrent;
-
-                        if(options['debug']){
-                            var statusBar = $('.'+statusBarClassName);
-                            statusBar.html(message);
-                        }
-                    }, false);
-                }
-
-                function getMousePos(canvas, e) {
-                    var rect = canvas.getBoundingClientRect();
-                    return {
-                        x: e.clientX - rect.left,
-                        y: e.clientY - rect.top
-                    };
-                }
-
-                function drawPlots() {
-
-                    context.clearRect(0, 0, canvas.width, canvas.height);
-
-                    mapPoints(
-                        function (point) {
-
-                            var radius;
-
-                            if(point.hovered){
-                                radius = 10;
-                                tooltip(context, point);
-                            }else{
-                                radius = 5;
-                            }
-
-                            context.setLineDash([0]);
-                            context.lineWidth = 2;
-
-                            rhomb(context, point, radius);
-
-                            if(point.descr != ''){
-                                context.beginPath();
-                                context.font = 'bold 10pt ' + options['fontFamily'];
-                                context.fillStyle = options.types[point.type].color;
-                                context.fillText(point.descr, point.x - 10, point.y + 15);
-                                context.closePath();
-                            }
-
-                        }
-                    );
-                }
-
-                return canvas;
+                return fgDiv;
             };
+
+            function drawPlots(fgDiv) {
+
+                function showTooltip(){
+                    var tooltip = $('<div></div>');
+                    tooltip.addClass('patgod85-graph-tooltip');
+                    var css = {left: this.point.x, top: this.point.y - 40};
+
+                    css['background-color'] = options.types[this.point.type].color;
+
+                    tooltip.css(css);
+                    tooltip.html(this.point.origY);
+                    var parent = $(this).parents('.' + fgClassName);
+                    tooltip.appendTo(parent);
+
+                    var lines = $('<div></div>');
+                    lines.addClass('patgod85-graph-tooltip-lines');
+                    lines.css({
+                        left: params['x0'],
+                        top: this.point.y,
+                        width: this.point.x - params['x0'],
+                        height: params['y0'] - this.point.y
+                    });
+
+                    lines.appendTo(parent);
+                }
+
+                function hideTooltip(){
+                    $('.patgod85-graph-tooltip').remove();
+                    $('.patgod85-graph-tooltip-lines').remove();
+                }
+
+                mapPoints(
+                    function (point) {
+
+                        var pointElement = $('<a href="#" class="p85-graph-point"><div class="rhomb-up"></div><div class="rhomb-down"></div></a>');
+                        var css = {
+                            top: point.y,
+                            left: point.x
+                        };
+
+                        pointElement.addClass('p85-graph-point-type' + point.type);
+                        pointElement.css(css);
+                        pointElement.prop('point', point);
+                        pointElement.hover(showTooltip, hideTooltip);
+                        pointElement.appendTo(fgDiv);
+
+                        var descriptionElement = $('<div></div>');
+                        descriptionElement.addClass('p85-graph-point-description');
+                        descriptionElement.html(point.descr);
+                        descriptionElement.css({
+                            top: point.y + 10,
+                            left: point.x - 10
+                        });
+                        descriptionElement.appendTo(fgDiv);
+                    }
+                );
+            }
+        }
+
+        function AgendaLayer(options){
+            this.getCanvas = function(){
+                var div = $('<div class="p85-graph-agenda"></div>');
+
+                drawAgenda(div);
+
+                return div;
+            };
+
+            function drawAgenda(div){
+
+                for(var i = 0; i < options.types.length; i++){
+                    var pointElement = $('<div class="p85-graph-point"><div class="rhomb-up"></div><div class="rhomb-down"></div></div>');
+                    pointElement.addClass('p85-graph-point-type' + i);
+
+                    pointElement.appendTo(div);
+
+                    var span = $('<span></span>');
+                    span.html(' - ' + options.types[i].description);
+
+                    span.appendTo(div);
+                }
+            }
+
         }
 
         //noinspection JSUnusedLocalSymbols
@@ -165,24 +169,9 @@
 
                 drawAxes();
 
-                drawAgenda();
-
                 function drawBackground(){
                     context.fillStyle = options['backgroundColor'];
                     context.fillRect(0, 0, options['width'], options['height']);
-                }
-
-                function drawAgenda(){
-                    context.lineWidth = 2;
-
-                    for(var i = 0; i < options.types.length; i++){
-                        rhomb(context, new Point(i, '', i * 120 + 100, 10, options, params, true), 5);
-
-                        context.beginPath();
-                        context.fillStyle = options['axesDescriptionColor'];
-                        context.fillText(' - ' + options.types[i].description, i * 120 + 107, 14);
-                        context.closePath();
-                    }
                 }
 
                 function drawAxes(){
@@ -392,85 +381,7 @@
             }
         }
 
-        function rhomb(context, point, radius){
 
-            context.beginPath();
-            context.fillStyle = options['linesColor'];
-            context.strokeStyle = options['types'][point.type].color;
-            context.moveTo(point.x - radius, point.y);
-            context.lineTo(point.x, point.y - radius);
-            context.lineTo(point.x + radius, point.y);
-            context.lineTo(point.x, point.y + radius);
-            context.lineTo(point.x - radius, point.y);
-            context.fill();
-            context.stroke();
-            context.closePath();
-        }
-
-        function tooltip(context, point){
-            context.beginPath();
-            context.strokeStyle = options.types[point.type].color;
-            context.lineWidth = 1;
-            context.setLineDash([3]);
-            context.moveTo(params['x0'], point.y);
-            context.lineTo(point.x, point.y);
-            context.lineTo(point.x, params['y0']);
-            context.stroke();
-
-            context.closePath();
-
-            context.beginPath();
-            context.setLineDash([0]);
-            context.fillStyle = options.types[point.type].color;
-            context.strokeStyle = options.types[point.type].color;
-            context.moveTo(point.x, point.y - 14);
-            context.lineTo(point.x - 8, point.y - 20);
-            context.lineTo(point.x + 8, point.y - 20);
-            context.lineTo(point.x, point.y - 14);
-            context.fill();
-
-            context.rect(point.x - 30, point.y - 40, 60, 20);
-            context.fill();
-
-            context.stroke();
-
-            context.closePath();
-
-            context.beginPath();
-            context.fillStyle = 'white';
-            context.font = 'bold 10pt ' + options['fontFamily'];
-            context.fillText(point.origY.toString(), point.x - 20, point.y - 25);
-            context.stroke();
-
-            context.closePath();
-        }
-
-        function setDefaultOptions(_options){
-            var options = {
-                width: 1280,
-                height: 1024,
-                marginX: 50,
-                marginY: 50,
-                backgroundColor: 'white',
-                axesColor: '#DEDEDE',
-                axesDescriptionColor: '#979797',
-                linesColor: '#D9F1FD',
-                fontFamily: 'Tahoma',
-                stepsX: 8,
-                stepsY: 5,
-                yK: 1.5,
-                debug: false,
-                types: [{color: '#39A8EC', description: 'ваша ставка'}, {color: '#0457AB', description: 'другая компания'}]
-            };
-
-            for(var i in _options){
-                if(_options.hasOwnProperty(i)){
-                    options[i] = _options[i];
-                }
-            }
-
-            return options;
-        }
 
         function getParams(){
             var maxX = 0,
@@ -583,11 +494,21 @@
         }
     }
 
-    function Style(){
+    function Style(options){
         this.appendTo = function(container){
             var style = document.createElement('style');
+            var css = '.p85-graph-holder {position: relative; border: 1px solid grey; font-family: ' + options['fontFamily'] + '}'
+                + '.' + fgClassName + ' {position: absolute; top:0; left:0;}'
+                + '.p85-graph-point {position: absolute; width: 16px; height: 16px; display: block; text-decoration: none; z-index: 2;}'
+                + '.patgod85-graph-tooltip {position: absolute; background-color: #33C5D3; padding: 3px 10px; color: white; }'
+                + '.p85-graph-point-description {position: absolute; }'
+                + '.patgod85-graph-tooltip-lines {position: absolute; border-width: 2px 2px 0 0; border-color: grey; border-style: dotted; z-index: 1;}'
+                + '.p85-graph-agenda {position: absolute; top: 0; left: 0; color: '+ options['axesDescriptionColor'] +'; font-size: 10pt;} .p85-graph-agenda div, .p85-graph-agenda span {float: left} .p85-graph-agenda .rhomb-up, .p85-graph-agenda .rhomb-down {left: -3px; top: 3px;} .p85-graph-agenda .p85-graph-point {margin-left: 20px}';
+
+
+
             style.setAttribute('type', 'text/css');
-            style.innerHTML = '.p85-graph-holder {position: relative; border: 1px solid grey;} .' + fgClassName + ' {position: absolute; top:0; left:0;}';
+            style.innerHTML = css;
             container.append(style);
         }
     }
@@ -598,5 +519,32 @@
             statusBar.setAttribute('class', statusBarClassName);
             container.append(statusBar);
         }
+    }
+
+    function setDefaultOptions(_options){
+        var options = {
+            width: 1280,
+            height: 1024,
+            marginX: 50,
+            marginY: 50,
+            backgroundColor: 'white',
+            axesColor: '#DEDEDE',
+            axesDescriptionColor: '#979797',
+            linesColor: '#D9F1FD',
+            fontFamily: 'Tahoma',
+            stepsX: 8,
+            stepsY: 5,
+            yK: 1.5,
+            debug: false,
+            types: [{color: '#39A8EC', description: 'ваша ставка'}, {color: '#0457AB', description: 'другая компания'}]
+        };
+
+        for(var i in _options){
+            if(_options.hasOwnProperty(i)){
+                options[i] = _options[i];
+            }
+        }
+
+        return options;
     }
 })( jQuery );
