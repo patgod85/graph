@@ -11,5 +11,6 @@
     </metadata>
     <files>
         <file src="build\patgod85.graph.min.js" target="Content\Scripts\patgod85.graph.min.js" />
+        <file src="build\patgod85.graph.css" target="Content\Content\patgod85.graph.css" />
     </files>
 </package>

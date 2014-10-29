@@ -1,0 +1,109 @@
+.p85-graph-holder {
+    position: relative;
+    border: 1px solid grey;
+}
+
+.rhomb-up, .rhomb-down{
+    font-size:0;
+    height:0;
+    position: relative;
+    left: -8px;
+    top: -8px;
+}
+.rhomb-up{
+    border-bottom:  8px solid #39A8EC;
+    border-left:    8px solid transparent;
+    border-right:   8px solid transparent;
+    width:0
+}
+.rhomb-down{
+    border-top:     8px solid #39A8EC;
+    border-left:    8px solid transparent;
+    border-right:   8px solid transparent;
+    width:0
+}
+
+.p85GraphCanvasFg {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    .p85-graph-point:hover {
+        .rhomb-up,
+        .rhomb-down {
+            left: -10px;
+            top: -10px;
+        }
+
+        .rhomb-up {
+            border-bottom-width: 10px;
+            border-left-width: 10px;
+            border-right-width: 10px;
+        }
+
+        .rhomb-down {
+            border-top-width: 10px;
+            border-left-width: 10px;
+            border-right-width: 10px;
+        }
+    }
+}
+
+.p85-graph-point {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    display: block;
+    text-decoration: none;
+    z-index: 2;
+}
+
+.patgod85-graph-tooltip {
+    position: absolute;
+    background-color: #33C5D3;
+    padding: 3px 10px;
+    color: white;
+}
+
+.p85-graph-point-description {
+    position: absolute;
+}
+
+.patgod85-graph-tooltip-lines {
+    position: absolute;
+    border-width: 2px 2px 0 0;
+    border-color: grey;
+    border-style: dotted;
+    z-index: 1;
+}
+
+
+
+.p85-graph-agenda {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: #979797;
+    font-size: 10pt;
+
+    div,
+    span {
+        float: left
+    }
+
+    .rhomb-up,
+    .rhomb-down {
+        left: -3px;
+        top: 3px;
+    }
+
+    .p85-graph-point {
+        margin-left: 20px
+    }
+
+    .p85-graph-point {display: inline; position: relative;}
+}
+
+
+
+

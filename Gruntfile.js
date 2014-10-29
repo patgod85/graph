@@ -42,7 +42,7 @@ module.exports = function(grunt) {
         copy: {
             main: {
                 files: [
-                    {expand: true, src: ['example/*'], dest: 'var/upload/', filter: 'isFile'},
+                    {expand: true, src: ['example/index.html'], dest: 'var/upload/', filter: 'isFile'},
                     {expand: true, src: ['build/*'], dest: 'var/upload/', filter: 'isFile'}
                 ]
             }
@@ -72,11 +72,20 @@ module.exports = function(grunt) {
                 files: ['package.json'],
                 commit: false,
                 push: false,
-                createTag: false,
+                createTag: true,
                 updateConfigs: ['pkg']
             }
+        },
+        sass: {
+            dist: {
+                options: {
+                    style: 'compressed'
+                },
+                files: {
+                    'build/patgod85.graph.css': 'src/patgod85.graph.scss'
+                }
+            }
         }
-
     });
 
 
@@ -88,9 +97,10 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-nuget');
     grunt.loadNpmTasks('grunt-bump');
+    grunt.loadNpmTasks('grunt-contrib-sass');
 
     // Default task(s).
-    grunt.registerTask('default', ['jasmine', 'uglify']);
+    grunt.registerTask('default', ['jasmine', 'uglify', 'sass']);
 
     grunt.registerTask('deploy', ['bump', 'default', 'clean', 'copy', 'ftp-deploy', 'nugetpack', 'nugetpush']);
 

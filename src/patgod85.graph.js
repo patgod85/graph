@@ -25,11 +25,7 @@
 
         this.addClass(holderClassName);
 
-        options = setDefaultOptions(options);
-
         (new Graph(options, coords)).appendTo(this);
-
-        (new Style(options)).appendTo(this);
 
         (new StatusBar).appendTo(this);
 
@@ -42,7 +38,8 @@
             var layers = [
                 (new BackgroundLayer(options, params)).getCanvas(),
                 (new AgendaLayer(options)).getCanvas(),
-                (new PointsLayer(options)).getCanvas()
+                (new PointsLayer(options)).getCanvas(),
+                (new Style(options)).getElement()
             ];
 
             for(var i = 0; i < layers.length; i++){
@@ -53,9 +50,12 @@
         this.getInternals = function(){
             return {
                 timeToX: timeToX,
-                xToTime: xToTime
+                xToTime: xToTime,
+                params: params
             };
         };
+
+        options = setDefaultOptions(options);
 
         var params = getParams();
 
@@ -105,7 +105,7 @@
                 mapPoints(
                     function (point) {
 
-                        var pointElement = $('<a href="#" class="p85-graph-point"><div class="rhomb-up"></div><div class="rhomb-down"></div></a>');
+                        var pointElement = $(template('rhomb-tmpl-a'));
                         var css = {
                             top: point.y,
                             left: point.x
@@ -142,7 +142,8 @@
             function drawAgenda(div){
 
                 for(var i = 0; i < options.types.length; i++){
-                    var pointElement = $('<div class="p85-graph-point"><div class="rhomb-up"></div><div class="rhomb-down"></div></div>');
+
+                    var pointElement = $(template("rhomb-tmpl-div"));
                     pointElement.addClass('p85-graph-point-type' + i);
 
                     pointElement.appendTo(div);
@@ -444,6 +445,23 @@
         function timeToX(time){
             return (time - params['minX'] + params['x0'] / params['coefficientX']) * params['coefficientX'];
         }
+
+        function Style(options){
+            this.getElement = function(){
+                var style = document.createElement('style');
+                var css = '.p85-graph-holder {font-family: ' + options['fontFamily'] + '}';
+
+                for(var i = 0; i < options.types.length; i++){
+                    var color = options.types[i].color;
+                    css += '.p85-graph-point-type' + i + ' .rhomb-up { border-bottom-color: ' + color + '; } .p85-graph-point-type' + i + ' .rhomb-down { border-top-color: ' + color + '; }'
+                }
+
+                style.setAttribute('type', 'text/css');
+                style.innerHTML = css;
+
+                return style;
+            }
+        }
     }
 
     function Point(type, descr, origX, origY, options, params, force){
@@ -494,25 +512,6 @@
         }
     }
 
-    function Style(options){
-        this.appendTo = function(container){
-            var style = document.createElement('style');
-            var css = '.p85-graph-holder {position: relative; border: 1px solid grey; font-family: ' + options['fontFamily'] + '}'
-                + '.' + fgClassName + ' {position: absolute; top:0; left:0;}'
-                + '.p85-graph-point {position: absolute; width: 16px; height: 16px; display: block; text-decoration: none; z-index: 2;}'
-                + '.patgod85-graph-tooltip {position: absolute; background-color: #33C5D3; padding: 3px 10px; color: white; }'
-                + '.p85-graph-point-description {position: absolute; }'
-                + '.patgod85-graph-tooltip-lines {position: absolute; border-width: 2px 2px 0 0; border-color: grey; border-style: dotted; z-index: 1;}'
-                + '.p85-graph-agenda {position: absolute; top: 0; left: 0; color: '+ options['axesDescriptionColor'] +'; font-size: 10pt;} .p85-graph-agenda div, .p85-graph-agenda span {float: left} .p85-graph-agenda .rhomb-up, .p85-graph-agenda .rhomb-down {left: -3px; top: 3px;} .p85-graph-agenda .p85-graph-point {margin-left: 20px}';
-
-
-
-            style.setAttribute('type', 'text/css');
-            style.innerHTML = css;
-            container.append(style);
-        }
-    }
-
     function StatusBar(){
         this.appendTo = function(container) {
             var statusBar = document.createElement('p');
@@ -531,7 +530,7 @@
             axesColor: '#DEDEDE',
             axesDescriptionColor: '#979797',
             linesColor: '#D9F1FD',
-            fontFamily: 'Tahoma',
+            fontFamily: 'Tahoma, serif',
             stepsX: 8,
             stepsY: 5,
             yK: 1.5,
@@ -546,5 +545,16 @@
         }
 
         return options;
+    }
+
+    function template(id){
+        switch(id){
+            case 'rhomb-tmpl-div':
+                return '<div class="p85-graph-point"><div class="rhomb-up"></div><div class="rhomb-down"></div></div>';
+            case 'rhomb-tmpl-a':
+                return '<a href="#" class="p85-graph-point"><div class="rhomb-up"></div><div class="rhomb-down"></div></a>';
+            default:
+                return '';
+        }
     }
 })( jQuery );

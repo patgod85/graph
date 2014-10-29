@@ -5,6 +5,16 @@ JQuery plugin for creating of graph using specific input array
 
 # Plugin usage
 
+In your html page need to include:
+
+```
+<link href="patgod85.graph.css" rel="stylesheet">
+<script type="text/javascript" src="jquery.min.js" ></script>
+<script type="text/javascript" src="patgod85.graph.min.js"></script>
+```
+
+And use graph in your javascript code
+
 ```
 $(selector).graph(options, data);
 ```
