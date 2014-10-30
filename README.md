@@ -35,6 +35,7 @@ $(selector).graph(options, data);
 * axesColor - color of axes,
 * axesDescriptionColor - color of axes' descriptions,
 * linesColor - color of graph line and square under it,
+* fontFamily - font family for text items placed on graph
 * stepsX - count of cells on X axis
 * stepsY - count of cells on Y axis
 * yK - coefficient for Y. If yK == 1 the minimum graph point will be lie on X axis. If if will be 1,5  then minimum point will be about a middle of graph 
@@ -59,7 +60,7 @@ Default options:
     axesDescriptionColor: '#979797',
     linesColor: '#D9F1FD',
     fontFamily: 'Tahoma',
-    stepsX: 8,
+    stepsX: 6,
     stepsY: 5,
     yK: 1.5,
     debug: false,

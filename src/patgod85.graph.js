@@ -9,6 +9,8 @@
 
     $.fn.graph = function(options, coords, methodName) {
 
+        addLocalFormat();
+
         if(methodName === 'internals'){
             return Graph;
         }
@@ -20,8 +22,6 @@
         if(typeof coords === 'undefined'){
             return this;
         }
-
-        addLocalFormat();
 
         this.addClass(holderClassName);
 
@@ -35,13 +35,6 @@
     function Graph(options, coords){
 
         this.appendTo = function(container){
-            var layers = [
-                (new BackgroundLayer(options, params)).getCanvas(),
-                (new AgendaLayer(options)).getCanvas(),
-                (new PointsLayer(options)).getCanvas(),
-                (new Style(options)).getElement()
-            ];
-
             for(var i = 0; i < layers.length; i++){
                 container.append(layers[i]);
             }
@@ -51,7 +44,10 @@
             return {
                 timeToX: timeToX,
                 xToTime: xToTime,
-                params: params
+                params: params,
+                points: points,
+                xNotches: xNotches,
+                options: options
             };
         };
 
@@ -60,6 +56,15 @@
         var params = getParams();
 
         var points = getPoints();
+
+        var xNotches = [];
+
+        var layers = [
+            (new BackgroundLayer(options, params)).getCanvas(),
+            (new AgendaLayer(options)).getCanvas(),
+            (new PointsLayer(options)).getCanvas(),
+            (new Style(options)).getElement()
+        ];
 
         function PointsLayer(options){
 
@@ -196,7 +201,7 @@
                     drawNotchesOnY();
 
                     function drawNotchesOnX(){
-                        var i, currentDate = 0;
+                        var i, x, prevX = 0, currentDate = 0, currentYear = 0;
 
                         drawFirstNotch();
 
@@ -205,7 +210,10 @@
                             drawLastNotch();
 
                             for(i = 0; i < options['stepsX']; i++){
-                                var x = params['x0'] + i * params['stepX'];
+                                x = params['x0'] + i * params['stepX'];
+                                if(x <= prevX){
+                                    x = prevX;
+                                }
 
                                 x = timeToX(
                                     getNearestPrettyDate(
@@ -213,6 +221,8 @@
                                         xToTime(x)
                                     )
                                 );
+
+                                xNotches.push(x - params['x0']);
 
                                 context.beginPath();
                                 context.moveTo(x, params['y0']);
@@ -225,16 +235,34 @@
                                 context.fillText(date.format("%H:%M"), x, params['y0'] + 15);
 
                                 if(i == 0 || currentDate != date.getDate()){
-                                    context.fillText(date.format("%d %B %Y"), x, params['y0'] + 25);
+                                    context.fillText(date.format("%d %B"), x, params['y0'] + 30);
+
+                                    if(i == 0 || currentYear != date.getFullYear()){
+                                        context.fillText(date.format("%Y"), x, params['y0'] + 45);
+                                    }
                                 }
                                 currentDate = date.getDate();
+                                currentYear = date.getFullYear();
+                                prevX = x;
                             }
                         }
 
                         function getNearestPrettyDate(direction, value){
                             var date = new Date();
                             date.setTime(value);
-                            while(date.getMinutes() != 0 || (date.getHours() - 1) % (options['stepsX']) != 0){
+
+                            var prettyMinutes = [0];
+                            var diapasonHours = (params['maxX'] - params['minX'])/1000/60/60;
+
+                            if(diapasonHours < 1){
+                                prettyMinutes = [0,15,30,45, 5, 10, 20, 25, 35, 40, 50, 55];
+                            }else if(diapasonHours < 3){
+                                prettyMinutes = [0, 15, 30, 45, 10, 20, 40, 50];
+                            }else if(diapasonHours < options['stepsX']){
+                                prettyMinutes = [0,15,30,45];
+                            }
+
+                            while(prettyMinutes.indexOf(date.getMinutes()) === -1){
                                 if(direction){
                                     value += 60000;
                                 }else{
@@ -531,7 +559,7 @@
             axesDescriptionColor: '#979797',
             linesColor: '#D9F1FD',
             fontFamily: 'Tahoma, serif',
-            stepsX: 8,
+            stepsX: 6,
             stepsY: 5,
             yK: 1.5,
             debug: false,
