@@ -481,7 +481,7 @@
 
                 for(var i = 0; i < options.types.length; i++){
                     var color = options.types[i].color;
-                    css += '.p85-graph-point-type' + i + ' .rhomb-up { border-bottom-color: ' + color + '; } .p85-graph-point-type' + i + ' .rhomb-down { border-top-color: ' + color + '; }'
+                    css += '.p85-graph-point-type' + i + ' { border-color: ' + color + '; } .p85-graph-point-type' + i + ' { border-color: ' + color + '; }'
                 }
 
                 style.setAttribute('type', 'text/css');
@@ -578,9 +578,9 @@
     function template(id){
         switch(id){
             case 'rhomb-tmpl-div':
-                return '<div class="p85-graph-point"><div class="rhomb-up"></div><div class="rhomb-down"></div></div>';
+                return '<div class="p85-graph-point"></div>';
             case 'rhomb-tmpl-a':
-                return '<a href="#" class="p85-graph-point"><div class="rhomb-up"></div><div class="rhomb-down"></div></a>';
+                return '<a href="#" class="p85-graph-point"></a>';
             default:
                 return '';
         }
