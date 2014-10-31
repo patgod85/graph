@@ -10,7 +10,11 @@
         <tags>jquery plugin graph</tags>
     </metadata>
     <files>
+        <file src="build\patgod85.graph.js" target="Content\Scripts\patgod85.graph.js" />
         <file src="build\patgod85.graph.min.js" target="Content\Scripts\patgod85.graph.min.js" />
+        <file src="build\patgod85.graph.min.js.map" target="Content\Scripts\patgod85.graph.min.js.map" />
+
         <file src="build\patgod85.graph.css" target="Content\Content\patgod85.graph.css" />
+        <file src="build\patgod85.graph.min.css" target="Content\Content\patgod85.graph.min.css" />
     </files>
 </package>

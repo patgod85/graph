@@ -16,3 +16,4 @@
 .ftppass
 /var/upload/
 /var/nuget/
+/.sass-cache/

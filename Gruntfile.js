@@ -6,10 +6,11 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
         uglify: {
             options: {
-                banner: '/*! <%= pkg.name %> <%= pkg.version %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+                banner: '/*! <%= pkg.name %> <%= pkg.version %> <%= grunt.template.today("yyyy-mm-dd") %> */\n',
+                sourceMap: true
             },
             build: {
-                src: 'src/<%= pkg.name %>.js',
+                src: 'build/<%= pkg.name %>.js',
                 dest: 'build/<%= pkg.name %>.min.js'
             }
         },
@@ -22,7 +23,6 @@ module.exports = function(grunt) {
                         "bower_components/jquery/dist/jquery.min.js"
                     ]
                 }
-
             }
         },
         'ftp-deploy': {
@@ -45,7 +45,12 @@ module.exports = function(grunt) {
                     {expand: true, src: ['example/index.html'], dest: 'var/upload/', filter: 'isFile'},
                     {expand: true, src: ['build/*'], dest: 'var/upload/', filter: 'isFile'}
                 ]
+            },
+            beforeUglify: {
+                src: 'src/<%= pkg.name %>.js',
+                dest: 'build/<%= pkg.name %>.js'
             }
+
         },
         nugetpack: {
             dist: {
@@ -82,6 +87,14 @@ module.exports = function(grunt) {
                     style: 'compressed'
                 },
                 files: {
+                    'build/patgod85.graph.min.css': 'src/patgod85.graph.scss'
+                }
+            },
+            expanded: {
+                options: {
+                    style: 'expanded'
+                },
+                files: {
                     'build/patgod85.graph.css': 'src/patgod85.graph.scss'
                 }
             }
@@ -99,8 +112,9 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-bump');
     grunt.loadNpmTasks('grunt-contrib-sass');
 
-    // Default task(s).
-    grunt.registerTask('default', ['jasmine', 'uglify', 'sass']);
+    grunt.registerTask('ug', ['copy:beforeUglify', 'uglify', 'sass']);
+
+    grunt.registerTask('default', ['jasmine', 'ug', 'sass']);
 
     grunt.registerTask('deploy', ['bump', 'default', 'clean', 'copy', 'ftp-deploy', 'nugetpack', 'nugetpush']);
 
