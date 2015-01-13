@@ -1,11 +1,12 @@
 {
-  "name": "patgod85.graph",
-  "version": "1.0.0",
-  "ignore": [
-    ".jshintrc",
-    "**/*.txt"
-  ],
-  "dependencies": {
-    "jquery": "1.*"
-  }
+    "name": "patgod85.graph",
+    "version": "1.0.0",
+    "ignore": [
+        ".jshintrc",
+        "**/*.txt"
+    ],
+    "dependencies": {
+        "jquery": "1.*",
+        "jasmine": "~2.*"
+    }
 }
