@@ -9,8 +9,6 @@
 
     $.fn.graph = function(options, coords, methodName) {
 
-        addLocalFormat();
-
         if(methodName === 'internals'){
             return Graph;
         }
@@ -232,13 +230,13 @@
 
                                 var date = new Date();
                                 date.setTime(xToTime(x));
-                                context.fillText(date.format("%H:%M"), x, params['y0'] + 15);
+                                context.fillText(format(date, "%H:%M"), x, params['y0'] + 15);
 
                                 if(i == 0 || currentDate != date.getDate()){
-                                    context.fillText(date.format("%d %B"), x, params['y0'] + 30);
+                                    context.fillText(format(date, "%d %B"), x, params['y0'] + 30);
 
                                     if(i == 0 || currentYear != date.getFullYear()){
-                                        context.fillText(date.format("%Y"), x, params['y0'] + 45);
+                                        context.fillText(format(date, "%Y"), x, params['y0'] + 45);
                                     }
                                 }
                                 currentDate = date.getDate();
@@ -278,10 +276,10 @@
 
                             var date = new Date();
                             date.setTime(time);
-                            context.fillText(date.format("%H:%M"), timeToX(time) - 30, params['y0'] + 5);
+                            context.fillText(format(date, "%H:%M"), timeToX(time) - 30, params['y0'] + 5);
 
                             if(coords.length == 1){
-                                context.fillText(date.format("%d %B %Y"), params['x0'], params['y0'] + 25);
+                                context.fillText(format(date, "%d %B %Y"), params['x0'], params['y0'] + 25);
                             }
                         }
 
@@ -290,7 +288,7 @@
 
                             var date = new Date();
                             date.setTime(time);
-                            context.fillText(date.format("%H:%M"), timeToX(time) + 5, params['y0'] + 5);
+                            context.fillText(format(date, "%H:%M"), timeToX(time) + 5, params['y0'] + 5);
                         }
                     }
 
@@ -514,30 +512,26 @@
         }
     }
 
-    function addLocalFormat(){
-        if(!Date.prototype.format){
-            Date.prototype.format = function(format) {
-                var monthNames = [ "Января", "Февраля", "Марта", "Апреля", "Мая", "Июня",
-                    "Июля", "Августа", "Сентября", "Октября", "Ноября", "Декабря" ];
+    function format(date, format) {
+        var monthNames = [ "Января", "Февраля", "Марта", "Апреля", "Мая", "Июня",
+            "Июля", "Августа", "Сентября", "Октября", "Ноября", "Декабря" ];
 
-                var f = {
-                    Y : this.getFullYear(),
-                    y : this.getFullYear()-(this.getFullYear()>=2e3?2e3:1900),
-                    m : this.getMonth() + 1,
-                    d : this.getDate(),
-                    H : this.getHours(),
-                    M : this.getMinutes(),
-                    S : this.getSeconds(),
-                    B : monthNames[this.getMonth()]
-                }, k;
-                for(k in f){
-                    if(f.hasOwnProperty(k)){
-                        format = format.replace('%' + k, f[k] < 10 ? "0" + f[k] : f[k]);
-                    }
-                }
-                return format;
+        var f = {
+            Y : date.getFullYear(),
+            y : date.getFullYear()-(date.getFullYear()>=2e3?2e3:1900),
+            m : date.getMonth() + 1,
+            d : date.getDate(),
+            H : date.getHours(),
+            M : date.getMinutes(),
+            S : date.getSeconds(),
+            B : monthNames[date.getMonth()]
+        }, k;
+        for(k in f){
+            if(f.hasOwnProperty(k)){
+                format = format.replace('%' + k, f[k] < 10 ? "0" + f[k] : f[k]);
             }
         }
+        return format;
     }
 
     function StatusBar(){
